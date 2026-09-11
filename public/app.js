@@ -632,3 +632,5 @@ function ConfigTab({ config, onSave, showToast }) {
                 React.createElement("input", { className: "input", type: "time", value: form.orderStartTime || "", onChange: (e) => setForm(Object.assign(Object.assign({}, form), { orderStartTime: e.target.value })) })),
             React.createElement(Field, { label: "Terminan los pedidos" },
                 React.createElement("input", { className: "input", type: "time", value: form.orderEndTime || "", onChange: (e) => setForm(Object.assi
+function OwnerQuickBar({ isOpen, onToggleOpen, onOpenPanel, onExit }) {const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(App, null));
