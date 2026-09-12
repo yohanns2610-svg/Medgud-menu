@@ -1,4 +1,4 @@
-"use strict";
+        "use strict";
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -234,7 +234,8 @@ function App() {
     }
     function changeQty(id, delta) {
         const product = products.find((p) => p.id === id);
-        const max = getStock(product);setCart((c) => {
+        const max = getStock(product);
+        setCart((c) => {
             const next = Object.assign(Object.assign({}, c), { [id]: Math.min(max, Math.max(0, (c[id] || 0) + delta)) });
             if (next[id] === 0)
                 delete next[id];
@@ -339,8 +340,7 @@ function App() {
                 React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-5" }, visibleProducts.filter((p) => (p.category || "General") === cat).map((p) => {
                     const stock = getStock(p);
                     const soldOut = p.trackStock && stock <= 0;
-                    const atMax = cart[p.id] >= stock;
-                    return (React.createElement("div", { key: p.id, className: "bg-white rounded-3xl overflow-hidden flex flex-col transition-transform active:translate-x-0.5 active:translate-y-0.5", style: {
+                    const atMax = cart[p.id] >= stock;return (React.createElement("div", { key: p.id, className: "bg-white rounded-3xl overflow-hidden flex flex-col transition-transform active:translate-x-0.5 active:translate-y-0.5", style: {
                             border: "3px solid #0c4a6e",
                             boxShadow: "7px 7px 0 0 #f59e0b, 7px 7px 0 3px #0c4a6e",
                             opacity: soldOut ? 0.55 : 1,
@@ -404,7 +404,7 @@ function App() {
                         }
                     }
                 }
-                catch (e) { /* si falla la verificación, seguimos con el estado local */ }
+                catch (e) { }
                 const { url, hasNumber } = buildWhatsAppUrl();
                 if (!hasNumber) {
                     showToast("El dueño todavía no configuró el número de WhatsApp.");
@@ -434,7 +434,57 @@ const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Poppi
 .truck-drive { animation: truckDrive 3.2s linear infinite; left: -15%; }
 @keyframes truckDrive { from { left: -15%; } to { left: 105%; } }`;
 function SetupWizard({ onCreate }) {
-    const [form, setForm] = useState(Object.assign(Object.function OwnerQuickBar({ isOpen, onToggleOpen, onOpenPanel, onExit }) {
+    const [form, setForm] = useState(Object.assign(Object.assign({}, DEFAULT_CONFIG), { pin: "", confirmPin: "" }));
+    const [error, setError] = useState("");
+    function submit() {
+        if (!form.pin || form.pin.length < 4)
+            return setError("Elegí un PIN de al menos 4 dígitos.");
+        if (form.pin !== form.confirmPin)
+            return setError("Los PIN no coinciden.");
+        const { confirmPin } = form, cfg = __rest(form, ["confirmPin"]);
+        onCreate(cfg);
+    }
+    return (React.createElement("div", { className: "min-h-screen bg-amber-50 flex items-center justify-center p-5", style: { fontFamily: "'Inter', sans-serif" } },
+        React.createElement("style", null, FONT_IMPORT),
+        React.createElement("div", { className: "bg-white rounded-3xl shadow-xl max-w-sm w-full p-6" },
+            React.createElement("h1", { className: "text-xl font-bold text-slate-800 mb-1", style: { fontFamily: "'Poppins', sans-serif" } }, "Configuración inicial"),
+            React.createElement("p", { className: "text-slate-500 text-sm mb-5" }, "Esto se hace una sola vez. Guardá tu PIN, lo vas a necesitar para editar el menú."),
+            React.createElement(Field, { label: "Nombre del local" },
+                React.createElement("input", { className: "input", value: form.businessName, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { businessName: e.target.value })) })),
+            React.createElement(Field, { label: "Número del gerente (para pedidos grandes)" },
+                React.createElement("input", { className: "input", placeholder: "Opcional", value: form.managerWhatsapp, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { managerWhatsapp: e.target.value })) })),
+            React.createElement("p", { className: "text-xs text-slate-400 mb-3" }, "Los horarios de pedidos, reparto y el número de WhatsApp para pedidos ya vienen con un valor por defecto. Los vas a poder editar después desde el panel del dueño."),
+            React.createElement("div", { className: "grid grid-cols-2 gap-3" },
+                React.createElement(Field, { label: "Elegí un PIN" },
+                    React.createElement("input", { className: "input", type: "password", inputMode: "numeric", value: form.pin, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { pin: e.target.value })) })),
+                React.createElement(Field, { label: "Repetí el PIN" },
+                    React.createElement("input", { className: "input", type: "password", inputMode: "numeric", value: form.confirmPin, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { confirmPin: e.target.value })) }))),
+            error && React.createElement("p", { className: "text-red-600 text-xs mb-3 flex items-center gap-1" },
+                React.createElement(Icon, { name: "error", size: 13 }),
+                " ",
+                error),
+            React.createElement("button", { onClick: submit, className: "w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-xl mt-1" }, "Crear mi menú")),
+        React.createElement("style", null, `.input { width:100%; border:1px solid #bae6fd; border-radius:0.75rem; padding:0.55rem 0.8rem; font-size:0.9rem; outline:none; } .input:focus { border-color:#38bdf8; }`)));
+}
+function Field({ label, children }) {
+    return (React.createElement("div", { className: "mb-3" },
+        React.createElement("label", { className: "block text-xs font-semibold text-slate-500 mb-1" }, label),
+        children));
+}
+function PinModal({ value, error, onChange, onClose, onSubmit }) {
+    return (React.createElement("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-5" },
+        React.createElement("div", { className: "bg-white rounded-2xl p-6 w-full max-w-xs" },
+            React.createElement("div", { className: "flex justify-between items-center mb-4" },
+                React.createElement("h3", { className: "font-bold text-slate-800 flex items-center gap-2", style: { fontFamily: "'Poppins', sans-serif" } },
+                    React.createElement(Icon, { name: "lock", size: 16 }),
+                    " Acceso dueño"),
+                React.createElement("button", { onClick: onClose },
+                    React.createElement(Icon, { name: "close", size: 18, className: "text-slate-400" }))),
+            React.createElement("input", { autoFocus: true, type: "password", inputMode: "numeric", placeholder: "PIN", value: value, onChange: (e) => onChange(e.target.value), onKeyDown: (e) => e.key === "Enter" && onSubmit(), className: "w-full border border-sky-200 rounded-xl px-3 py-2.5 text-center text-lg tracking-widest outline-none focus:border-sky-400" }),
+            error && React.createElement("p", { className: "text-red-600 text-xs mt-2 text-center" }, error),
+            React.createElement("button", { onClick: onSubmit, className: "w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2.5 rounded-xl mt-4" }, "Ingresar"))));
+}
+function OwnerQuickBar({ isOpen, onToggleOpen, onOpenPanel, onExit }) {
     return (React.createElement("div", { className: "fixed bottom-4 left-4 right-4 z-30 flex justify-center" },
         React.createElement("div", { className: "bg-slate-900 text-white rounded-full shadow-xl flex items-center gap-1 px-2 py-2" },
             React.createElement("button", { onClick: onOpenPanel, className: "flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/10 text-sm font-medium" },
@@ -480,8 +530,7 @@ function CheckoutModal({ form, setForm, total, currency, orderSent, onClose, onS
                 React.createElement("h3", { className: "font-bold text-slate-800 text-lg", style: { fontFamily: "'Poppins', sans-serif" } }, "Datos de entrega"),
                 React.createElement("button", { onClick: onClose },
                     React.createElement(Icon, { name: "close", size: 20, className: "text-slate-400" }))),
-            orderSent ? (React.createElement("div", { className: "text-center py-6" },
-                React.createElement(Icon, { name: "check_circle", className: "mx-auto text-emerald-500 mb-3", size: 36 }),
+            orderSent ? (React.createElement("div", { className: "text-center py-6" },React.createElement(Icon, { name: "check_circle", className: "mx-auto text-emerald-500 mb-3", size: 36 }),
                 React.createElement("p", { className: "font-semibold text-slate-800 mb-1" }, "¡Pedido enviado!"),
                 React.createElement("p", { className: "text-sm text-slate-500 mb-5" }, "Se abrió WhatsApp con tu pedido listo para enviar."),
                 React.createElement("button", { onClick: onClose, className: "w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2.5 rounded-xl" }, "Cerrar"))) : (React.createElement(React.Fragment, null,
@@ -631,6 +680,47 @@ function ConfigTab({ config, onSave, showToast }) {
             React.createElement(Field, { label: "Empiezan los pedidos" },
                 React.createElement("input", { className: "input", type: "time", value: form.orderStartTime || "", onChange: (e) => setForm(Object.assign(Object.assign({}, form), { orderStartTime: e.target.value })) })),
             React.createElement(Field, { label: "Terminan los pedidos" },
-                React.createElement("input", { className: "input", type: "time", value: form.orderEndTime || "", onChange: (e) => setForm(Object.assi
-function OwnerQuickBar({ isOpen, onToggleOpen, onOpenPanel, onExit }) {const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(React.createElement(App, null));
+                React.createElement("input", { className: "input", type: "time", value: form.orderEndTime || "", onChange: (e) => setForm(Object.assign(Object.assign({}, form), { orderEndTime: e.target.value })) }))),
+        React.createElement("p", { className: "text-xs text-slate-400 -mt-2 mb-3" }, "Fuera de este horario, la app bloquea los pedidos automáticamente y muestra \"Estamos de reparto\"."),
+        React.createElement(Field, { label: "Días de reparto" },
+            React.createElement("input", { className: "input", value: form.deliveryDays, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { deliveryDays: e.target.value })) })),
+        React.createElement("div", { className: "grid grid-cols-2 gap-3 -mt-1" },
+            React.createElement(Field, { label: "Empieza el reparto" },
+                React.createElement("input", { className: "input", type: "time", value: form.deliveryStartTime || "", onChange: (e) => setForm(Object.assign(Object.assign({}, form), { deliveryStartTime: e.target.value })) })),
+            React.createElement(Field, { label: "Termina el reparto" },
+                React.createElement("input", { className: "input", type: "time", value: form.deliveryEndTime || "", onChange: (e) => setForm(Object.assign(Object.assign({}, form), { deliveryEndTime: e.target.value })) }))),
+        React.createElement("p", { className: "text-xs text-slate-400 -mt-2 mb-3" },
+            "Así se va a ver: \"",
+            buildDeliveryScheduleText(form) || "—",
+            "\". Se actualiza solo, no hace falta escribirlo aparte."),
+        React.createElement(Field, { label: "Mensaje para tus clientes" },
+            React.createElement("textarea", { className: "input", rows: 3, value: form.description, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { description: e.target.value })) })),
+        React.createElement(Field, { label: "Tu número de WhatsApp" },
+            React.createElement("input", { className: "input", value: form.whatsapp, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { whatsapp: e.target.value })) })),
+        React.createElement(Field, { label: "Número del gerente (pedidos grandes)" },
+            React.createElement("input", { className: "input", value: form.managerWhatsapp, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { managerWhatsapp: e.target.value })) })),
+        React.createElement(Field, { label: "Cantidad de productos para considerar un pedido grande" },
+            React.createElement("input", { className: "input", type: "number", value: form.largeOrderThreshold, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { largeOrderThreshold: e.target.value })) })),
+        React.createElement(Field, { label: "Símbolo de moneda" },
+            React.createElement("input", { className: "input", value: form.currency, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { currency: e.target.value })) })),
+        React.createElement("div", { className: "flex items-center justify-between bg-sky-50 rounded-xl px-4 py-3 mb-4" },
+            React.createElement("span", { className: "text-sm font-medium text-slate-700" }, "Estado del local"),
+            React.createElement("button", { onClick: () => setForm(Object.assign(Object.assign({}, form), { isOpen: !form.isOpen })), className: `px-3 py-1.5 rounded-full text-sm font-semibold ${form.isOpen ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}` }, form.isOpen ? "Abierto" : "Cerrado")),
+        React.createElement("button", { onClick: save, className: "w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 mb-4" },
+            React.createElement(Icon, { name: "save", size: 16 }),
+            " Guardar cambios"),
+        !showPinChange ? (React.createElement("button", { onClick: () => setShowPinChange(true), className: "w-full text-sky-600 text-sm font-medium py-2" }, "Cambiar PIN de acceso")) : (React.createElement("div", { className: "border-t border-sky-100 pt-4" },
+            React.createElement(Field, { label: "Nuevo PIN" },
+                React.createElement("input", { className: "input", type: "password", inputMode: "numeric", value: newPin, onChange: (e) => setNewPin(e.target.value) })),
+            React.createElement("button", { onClick: () => {
+                    if (newPin.length < 4)
+                        return showToast("El PIN debe tener al menos 4 dígitos");
+                    onSave(Object.assign(Object.assign({}, form), { pin: newPin }));
+                    setShowPinChange(false);
+                    setNewPin("");
+                    showToast("PIN actualizado");
+                }, className: "w-full bg-slate-800 text-white font-semibold py-2.5 rounded-xl" }, "Confirmar nuevo PIN"))),
+        React.createElement("style", null, `.input { width:100%; border:1px solid #bae6fd; border-radius:0.75rem; padding:0.55rem 0.8rem; font-size:0.9rem; outline:none; } .input:focus { border-color:#38bdf8; }`)));
+}
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.cre
